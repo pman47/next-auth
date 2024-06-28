@@ -25,12 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         console.log(email, password);
 
         if (!email || !password) {
-          throw new CredentialsSignin(
-            "Please provide email and password both.",
-            {
-              cause: "Please provide email and password both.",
-            }
-          );
+          throw new Error("Please provide email and password both.");
         }
 
         // Connection with DB.
@@ -40,9 +35,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const user = await User.findOne({ email: email }).select("+password");
 
         if (!user || !user?.password) {
-          throw new CredentialsSignin("Invalid email or password.", {
-            cause: "Invalid email or password.",
-          });
+          throw new Error("Invalid email or password.");
         }
 
         const isMatch = await compare(password, user.password);
@@ -52,9 +45,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         console.log("isMatch", isMatch);
 
         if (!isMatch) {
-          throw new CredentialsSignin("Invalid email or password.", {
-            cause: "Invalid email or password.",
-          });
+          throw new Error("Invalid email or password.");
         }
 
         delete user.password;
