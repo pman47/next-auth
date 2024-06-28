@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { InferSchemaType, model, models } from "mongoose";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -15,4 +15,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-export const User = mongoose.models?.User || mongoose.model("User", userSchema);
+type User = InferSchemaType<typeof userSchema>;
+
+// Check if the model already exists before defining it
+export const User = models?.User || model<User>("User", userSchema);

@@ -1,6 +1,8 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import credentials from "next-auth/providers/credentials";
 import { User } from "./models/userModel";
+import { connectToDB } from "./lib/utils";
+import { compare } from "bcryptjs";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -33,6 +35,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // Connection with DB.
 
+        await connectToDB();
+
         const user = await User.findOne({ email: email }).select("+password");
 
         if (!user || !user?.password) {
@@ -41,7 +45,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
         }
 
-        const isMatch = user.password === password;
+        const isMatch = await compare(password, user.password);
+
+        console.log("user", user.password);
+        console.log("password", password);
+        console.log("isMatch", isMatch);
 
         if (!isMatch) {
           throw new CredentialsSignin("Invalid email or password.", {
@@ -55,4 +63,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  pages: {
+    signIn: "/login",
+  },
 });
